@@ -1,0 +1,4 @@
+[IEC]
+wsdl = /usr/local/share/IEC.wsdl
+endpoint = http://127.0.0.1:9000/IEC
+sessiontoken = deadbeef-0123-4321-2345-001122334455
