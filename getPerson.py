@@ -8,10 +8,11 @@ import configparser
 ## Read command-line parameters and configuration file
 config = configparser.ConfigParser()
 config.read(sys.argv[1])
-ID = sys.argv[2]
-wsdl = config['IEC']['wsdl']
-endpoint = config['IEC']['endpoint']
-sessiontoken = config['IEC']['sessiontoken']
+ENV = sys.argv[2]
+ID = sys.argv[3]
+wsdl = config[ENV]['wsdl']
+endpoint = config[ENV]['endpoint']
+sessiontoken = config[ENV]['sessiontoken']
 
 ## Create a SOAP client and from that, create a new service with the correct endpoint
 client = Client(wsdl)
