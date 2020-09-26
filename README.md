@@ -2,7 +2,9 @@
 Bravida SystemHouse Solutions Integra API toolkit
 
 This requires the "zeep" SOAP library. Install with
-     pip3 install zeep
+```bash
+pip3 install zeep
+```
 
 You need to put the WSDL file for your Integra server in a suitable place. You can fetch it from `http[s]://<server>:<port>/IEC?singleWsdl`
 
