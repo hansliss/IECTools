@@ -13,7 +13,7 @@ force = False
 config = configparser.ConfigParser()
 config.read(sys.argv[1])
 ENV = sys.argv[2]
-if len(sys.argv) > 3 and sys.argv[3] = '-f':
+if len(sys.argv) > 3 and sys.argv[3] == '-f':
     force = True
 wsdl = config[ENV]['wsdl']
 endpoint = config[ENV]['endpoint']
