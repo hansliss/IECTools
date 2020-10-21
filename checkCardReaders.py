@@ -128,6 +128,8 @@ for row in dbCursor:
                 reader[fieldInfo[1]] = row[fieldInfo[0]]
         modified.append(reader)
         # print("Modified: %d" % row[0])
+dbCursor.execute("DELETE FROM readers")
+dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
 conn.commit()
 conn.close()
 
