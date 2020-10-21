@@ -131,12 +131,14 @@ for row in dbCursor:
                 reader[fieldInfo[1]] = row[fieldInfo[0]]
         modified.append(reader)
         # print("Modified: %d" % row[0])
-dbCursor.execute("DELETE FROM readers")
-dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
+
+if len(deleted) < 200 or force:
+    dbCursor.execute("DELETE FROM readers")
+    dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
 conn.commit()
 conn.close()
 
-if len(deleted) > 200 and not force:
+if len(deleted) >= 200 and not force:
     print("The number of deletes is large (%d) and the -f flag was not given. Doing nothing." % len(deleted))
     sys.exit(2)
     
