@@ -132,7 +132,9 @@ for row in dbCursor:
         modified.append(reader)
         # print("Modified: %d" % row[0])
 
-if len(deleted) < 200 or force:
+hasChanged=len(deleted) > 0 or len(added) > 0 or len(modified) > 0
+
+if hasChanged and (len(deleted) < 200 or force):
     dbCursor.execute("DELETE FROM readers")
     dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
 conn.commit()
@@ -142,7 +144,6 @@ if len(deleted) >= 200 and not force:
     print("The number of deletes is large (%d) and the -f flag was not given. Doing nothing." % len(deleted))
     sys.exit(2)
     
-hasChanged=len(deleted) > 0 or len(added) > 0 or len(modified) > 0
 if hasChanged:
     update={}
     update['timestamp'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
