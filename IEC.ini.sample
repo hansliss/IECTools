@@ -2,3 +2,7 @@
 wsdl = /usr/local/share/IEC.wsdl
 endpoint = http://127.0.0.1:9000/IEC
 sessiontoken = deadbeef-0123-4321-2345-001122334455
+db_host = localhost
+db_user = iectools
+db_password = whatever
+db_db = iectools
