@@ -8,10 +8,13 @@ import datetime
 import configparser
 import json
 
+force = False
 ## Read command-line parameters and configuration file
 config = configparser.ConfigParser()
 config.read(sys.argv[1])
 ENV = sys.argv[2]
+if len(sys.argv) > 3 and sys.argv[3] = '-f':
+    force = True
 wsdl = config[ENV]['wsdl']
 endpoint = config[ENV]['endpoint']
 sessiontoken = config[ENV]['sessiontoken']
@@ -133,9 +136,15 @@ dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
 conn.commit()
 conn.close()
 
-update={}
-update['timestamp'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-update['deleted'] = deleted
-update['added'] = added
-update['modified'] = modified
-print(json.dumps(update, indent=2))
+if len(deleted) > 200 and not force:
+    print("The number of deletes is large (%d) and the -f flag was not given. Doing nothing." % len(deleted))
+    sys.exit(2)
+    
+hasChanged=len(deleted) > 0 or len(added) > 0 or len(modified) > 0
+if hasChanged:
+    update={}
+    update['timestamp'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    update['deleted'] = deleted
+    update['added'] = added
+    update['modified'] = modified
+    print(json.dumps(update, indent=2))
