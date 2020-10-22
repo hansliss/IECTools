@@ -1,34 +1,71 @@
 # IECTools
-Bravida SystemHouse Solutions Integra API toolkit
+Bravida SystemHouse Solutions Integra Easy Connect (IEC) API toolkit
 
+## Introduction
+### Dependencies
 This requires the "zeep" SOAP library. Install with
 ```bash
 pip3 install zeep
 ```
 
-You need to put the WSDL file for your Integra server in a suitable place. You can fetch it from `http[s]://<server>:<port>/IEC?singleWsdl`
+Scripts that use a local database require the MySQLdb package for python. On CentOS
+and other yum-based systems, you should be able to find it as the ```MySQL-python```
+package. On Ubuntu and other debian-based systems, install the ```python-mysqldb```
+package. If you are using Windows, Google is your friend.
+
+### Configuration
+You need to put the WSDL file for your Integra server in a suitable place.
+You can fetch it from `http[s]://<server>:<port>/IEC?singleWsdl`
 
 There's a sample .ini file included, so you can just copy that and modify it.
 
-Enter, at a minimum, the wsdl path, the actual endpoint address and the session token in the config file, place that file in a suitable location, well protected.
+Enter, at a minimum, the WSDL path, the actual endpoint address and the session
+token in the config file, place that file in a suitable location, well protected.
+
+The examples below assume that you've downloaded the WSDL file and set all the
+relevant settings in the .ini file for the "Prod" environment, stored the .ini
+file as /usr/local/etc/IEC.ini and protected it so that only relevant users can
+read it.
 
 ## getPerson.py
 
-Run
+### Introduction
+This script will retrieve a single CardHolder by ID and print out selected details
+about that CardHolder. In the current version it will print out the FreeInfo1 field
+as NIN (here "PNR" for non-obvious reasons) and the name, composited from given name
+and surname.
+
+### Usage
+
 ```bash
 python3 getPerson.sh <config file> <environment> <ID>
 ```
 
-Example: You store the wsdl file as /usr/local/share/IEC.wsdl and update the wsdl setting in the .ini file for the "Prod" environment.
-Then you store the .ini file as /usr/local/etc/IEC.ini and protect it so that only relevant users can read it, and then you run
+### Example
+#### Command
 ```bash
-python3 getPerson.sh /usr/local/etc/IEC.ini Prod 54123
+$ python3 getPerson.sh /usr/local/etc/IEC.ini Prod 54123
 ```
-
-If everything is correctly set up, it will print the FreeInfo1 field and Name of the cardholder with the ID "54123".
+#### Result
+```
+PNR: 12345678
+Name: Allan Kaka
+```
 
 ## checkCardReaders.py
 
+### Introduction
+This script will load all the card readers from Integra into a temporary table,
+compare this with the master table and produce a JSon document containing deleted,
+added and modified readers, including the relevant fields.
+
+You may want to modify this to call some kind of service endpoint if you want this
+to generate events on an enterprise integration bus.
+
+Please note that the first run will produce a JSon document with *all* the readers
+as "added". You may want to do a dry run to seed the database.
+
+### Preparations
 Create a local MySQL/MariaDB database, add a user with access to the database, and create a table "readers":
 ```sql
 create database iectools;
@@ -43,12 +80,36 @@ create table readers (
 	     SecurityLevel varchar(32),
 	     primary key(Id));
 ```
+Add the database configuration to the config file.
 
-Add the database configuration to the config file, and run
+### Usage
+
+```bash
+python3 checkCardReaders.sh <config file> <environment>
+```
+
+### Example
+
+#### Command
 ```bash
 python3 getPerson.sh /usr/local/etc/IEC.init Prod
 ```
+#### Result
+```json
+{
+ "timestamp": "2020-10-21T13:40:39.265763Z",
+ "deleted": [],
+ "added": [],
+ "modified": [
+   {
+     "Id": 621301,
+     "Description": "West entrance"
+   },
+   {
+     "Id": 621305,
+     "Description": "Lvl -1 Storeroom 3"
+   }
+ ]
+}
+```
 
-The script will load all the card readers from Integra into a temporary table, compare this with the master table and produce a JSon document listing deleted, added and modified readers, including the relevant fields.
-
-You may want to modify this to call some kind of service endpoint if you want this to generate events on an enterprise integration bus. Please note that the first run will produce a JSon document with *all* the readers as "added". You may want to do a dry run.
