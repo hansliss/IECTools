@@ -90,7 +90,7 @@ while (not done):
         queryString += ") values (%s,%s,%s,%s,%s,%s,%s)"
         dbCursor.executemany(queryString, batch)
     except MySQLdb.Error as e:
-            print(f"Error on insert: {e}")
+            print("Error on insert: {e}")
             sys.exit(1)
 
     doneCount = doneCount + len(response.Results.__values__['CardReaderModel'])
