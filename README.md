@@ -97,19 +97,32 @@ python3 getPerson.sh /usr/local/etc/IEC.init Prod
 #### Result
 ```json
 {
- "timestamp": "2020-10-21T13:40:39.265763Z",
- "deleted": [],
- "added": [],
- "modified": [
-   {
-     "Id": 621301,
-     "Description": "West entrance"
-   },
-   {
-     "Id": 621305,
-     "Description": "Lvl -1 Storeroom 3"
-   }
- ]
+  "timestamp": "2020-10-22T08:36:51.819563Z",
+  "deleted": [
+    4711
+  ],
+  "added": [
+    {
+      "Id": 621235,
+      "ParentFolderPath": "Building 3\\Custodial",
+      "Name": "0050-32 Storeroom 3",
+      "Description": "New 2020-10-22",
+      "AccessPointId": 625420,
+      "CardReaderType": "SimonsVoss",
+      "SecurityLevel": "Unlocked"
+    }
+  ],
+  "modified": [
+    {
+      "Id": 598727,
+      "Name": "0031-12 Office",
+      "CardReaderType": "SmartIntegoVCN"
+    },
+    {
+      "Id": 534269,
+      "Name": "0011-02 West side"
+    }
+  ]
 }
 ```
 
