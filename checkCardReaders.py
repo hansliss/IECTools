@@ -1,4 +1,14 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
+
+"""checkCardReaders.py: Use a local MySQL database to keep track of card readers and produce a 'changes' JSon document."""
+
+__author__ = "Hans Liss"
+__copyright__ = "Copyright 2020, Hans Liss"
+__license__ = "BSD 2-Clause License"
+__version__ = "1.0"
+__maintainer__ = "Hans Liss"
+__email__ = "Hans@Liss.nu"
+__status__ = "Example code"
 
 from zeep import Client
 import MySQLdb
