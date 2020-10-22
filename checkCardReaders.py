@@ -43,7 +43,7 @@ try:
     dbCursor = conn.cursor()
     dbCursor.execute("CREATE TEMPORARY TABLE readersTemp like readers")
 except MySQLdb.Error as e:
-    print(f"Error connecting to MySQL Platform: {e}")
+    print("Error connecting to MySQL Platform: {e}")
     sys.exit(1)
 
 
