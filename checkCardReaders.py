@@ -29,8 +29,8 @@ wsdl = config[ENV]['wsdl']
 endpoint = config[ENV]['endpoint']
 sessiontoken = config[ENV]['sessiontoken']
 
-readerFields = [(0,'Id'), (1, 'ParentFolderPath'), (2, 'Name'), (3, 'Description'), (4, 'AccessPointId'), (5, 'CardReaderType'), (6, 'SecurityLevel')]
-nReaderFields = len(readerFields)
+# We do some fairly ugly string concatenation to create SQL queries below. 
+readerFields = ['Id', 'ParentFolderPath', 'Name', 'Description', 'AccessPointId', 'CardReaderType', 'SecurityLevel']
 
 try:
     conn = MySQLdb.connect(
@@ -75,18 +75,18 @@ while (not done):
     batch = []
     for reader in response.Results.__values__['CardReaderModel']:
         values = []
-        for fieldInfo in readerFields:
-            values.append(reader[fieldInfo[1]])
+        for fieldName in readerFields:
+            values.append(reader[fieldName])
         batch.append(values)
     try:
         queryString = "INSERT INTO readersTemp ("
         first = True
-        for fieldInfo in readerFields:
+        for fieldName in readerFields:
             if(first):
                 first = False
             else:
                 queryString += ","
-            queryString += fieldInfo[1]
+            queryString += fieldName
         queryString += ") values (%s,%s,%s,%s,%s,%s,%s)"
         dbCursor.executemany(queryString, batch)
     except MySQLdb.Error as e:
@@ -113,51 +113,48 @@ fieldListRt = ""
 fieldListR = ""
 fieldListChanged = ""
 first = True
-for fieldInfo in readerFields:
+for fieldName in readerFields:
     if(first):
         first = False
     else:
         fieldListRt += ","
         fieldListR += ","
         fieldListChanged += " OR "
-    fieldListRt += "rt." + fieldInfo[1]
-    fieldListR += "r." + fieldInfo[1]
-    fieldListChanged += "NOT ( rt." + fieldInfo[1] + " <=> r." + fieldInfo[1] + ")"
+    fieldListRt += "rt." + fieldName
+    fieldListR += "r." + fieldName
+    fieldListChanged += "NOT ( rt." + fieldName + " <=> r." + fieldName + ")"
 queryString = "SELECT " + fieldListRt + "," + fieldListR + " from readersTemp rt left join readers r on rt.Id = r.Id where r.Id IS NULL or " + fieldListChanged
 
 dbCursor.execute(queryString)
 for row in dbCursor:
-    if row[7] is None:
+    # If right side of JOIN is null, the reader has been added
+    if row[len(readerFields)] is None:
         reader = {}
-        for fieldInfo in readerFields:
-            reader[fieldInfo[1]] = row[fieldInfo[0]]
+        for i in range(len(readerFields)):
+            reader[readerFields[i]] = row[i]
         added.append(reader)
         # print("Added: %d" % row[0])
     else:
         reader = {}
         reader['Id'] = row[0]
-        for fieldInfo in readerFields:
-            if row[fieldInfo[0]] != row[fieldInfo[0] + nReaderFields]:
-                reader[fieldInfo[1]] = row[fieldInfo[0]]
+        for i in range(len(readerFields)):
+            if row[i] != row[i + len(readerFields)]:
+                reader[readerFields[i]] = row[i]
         modified.append(reader)
         # print("Modified: %d" % row[0])
 
-hasChanged=len(deleted) > 0 or len(added) > 0 or len(modified) > 0
-
-if hasChanged and (len(deleted) < 200 or force):
-    dbCursor.execute("DELETE FROM readers")
-    dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
-conn.commit()
-conn.close()
-
-if len(deleted) >= 200 and not force:
+if len(deleted) < 200 or force:
+    if len(deleted) > 0 or len(added) > 0 or len(modified) > 0:
+        dbCursor.execute("DELETE FROM readers")
+        dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
+        conn.commit()
+        update={}
+        update['timestamp'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        update['deleted'] = deleted
+        update['added'] = added
+        update['modified'] = modified
+        print(json.dumps(update, indent=2))
+else:
     print("The number of deletes is large (%d) and the -f flag was not given. Doing nothing." % len(deleted))
-    sys.exit(2)
     
-if hasChanged:
-    update={}
-    update['timestamp'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-    update['deleted'] = deleted
-    update['added'] = added
-    update['modified'] = modified
-    print(json.dumps(update, indent=2))
+conn.close()
