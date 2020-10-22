@@ -69,7 +69,7 @@ as "added". You may want to do a dry run to seed the database.
 Create a local MySQL/MariaDB database, add a user with access to the database, and create a table "readers":
 ```sql
 create database iectools;
-grant all on iectools.* to 'iectools'@'localhost' identified by 'foobar';
+grant all on iectools.* to 'iectools'@'localhost' identified by 'whatever';
 create table readers (
        	     Id int,
        	     ParentFolderPath varchar(255),
