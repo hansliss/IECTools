@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """checkCardReaders.py: Use a local MySQL database to keep track of card readers and produce a 'changes' JSon document."""
 

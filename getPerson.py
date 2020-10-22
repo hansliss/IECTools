@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """getPerson.py: Get a single person by Id and print some info about it."""
 
