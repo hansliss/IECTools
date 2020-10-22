@@ -14,7 +14,7 @@ Enter, at a minimum, the wsdl path, the actual endpoint address and the session 
 
 ## getPerson.py
 
-d, and run
+Run
 ```bash
 python3 getPerson.sh <config file> <environment> <ID>
 ```
