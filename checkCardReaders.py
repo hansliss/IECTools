@@ -43,7 +43,7 @@ try:
     dbCursor = conn.cursor()
     dbCursor.execute("CREATE TEMPORARY TABLE readersTemp like readers")
 except MySQLdb.Error as e:
-    print("Error connecting to MySQL Platform: {e}")
+    print(f"Error connecting to MySQL Platform: {e}")
     sys.exit(1)
 
 
@@ -68,7 +68,7 @@ while (not done):
         response=client.service.GetCardReadersList(**request_data)
     except:
         e = sys.exc_info()[0]
-        print("SOAP Error: %s" % e)
+        print(f"SOAP Error: {e}")
         sys.exit(1)
 
     totalCount = response.TotalCount
@@ -90,7 +90,7 @@ while (not done):
         queryString += ") values (%s,%s,%s,%s,%s,%s,%s)"
         dbCursor.executemany(queryString, batch)
     except MySQLdb.Error as e:
-            print("Error on insert: {e}")
+            print(f"Error on insert: {e}")
             sys.exit(1)
 
     doneCount = doneCount + len(response.Results.__values__['CardReaderModel'])
