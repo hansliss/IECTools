@@ -5,7 +5,7 @@
 __author__ = "Hans Liss"
 __copyright__ = "Copyright 2020, Hans Liss"
 __license__ = "BSD 2-Clause License"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Hans Liss"
 __email__ = "Hans@Liss.nu"
 __status__ = "Example code"
@@ -17,28 +17,46 @@ import sys
 import datetime
 import configparser
 import json
+import argparse
 
-force = False
 ## Read command-line parameters and configuration file
+parser = argparse.ArgumentParser(description='Find changes in CardReaders')
+parser.add_argument('-c', '--configfile', required=True,
+                    help='path to configuration file')
+parser.add_argument('-i', '--instance', required=True,
+                    help='name of the instance to use from the config file')
+parser.add_argument('-l', '--logprefix',
+                    help='prefix for log files. Datestamp will be added')
+parser.add_argument('-f', '--force', action='store_true',
+                    help='register changes even when deletes exceeds 200')
+
+args = parser.parse_args()
+
 config = configparser.ConfigParser()
-config.read(sys.argv[1])
-ENV = sys.argv[2]
-if len(sys.argv) > 3 and sys.argv[3] == '-f':
-    force = True
-wsdl = config[ENV]['wsdl']
-endpoint = config[ENV]['endpoint']
-sessiontoken = config[ENV]['sessiontoken']
+config.read(args.configfile)
+
+if args.logprefix is not None:
+    logfile = open(datetime.date.today().strftime(args.logprefix + "%Y-%m-%d"), "a")
+    def log(str):
+        logfile.write(datetime.datetime.now().strftime("%H:%M:%S\t") + str + "\n")
+else:
+    def log(str):
+        pass
+
+wsdl = config[args.instance]['wsdl']
+endpoint = config[args.instance]['endpoint']
+sessiontoken = config[args.instance]['sessiontoken']
 
 # We do some fairly ugly string concatenation to create SQL queries below. 
 readerFields = ['Id', 'ParentFolderPath', 'Name', 'Description', 'AccessPointId', 'CardReaderType', 'SecurityLevel']
 
 try:
     conn = MySQLdb.connect(
-        host = config[ENV]['db_host'],
+        host = config[args.instance]['db_host'],
         port = 3365,
-        user = config[ENV]['db_user'],
-        password = config[ENV]['db_password'],
-        database = config[ENV]['db_db'],
+        user = config[args.instance]['db_user'],
+        password = config[args.instance]['db_password'],
+        database = config[args.instance]['db_db'],
     )
     dbCursor = conn.cursor()
     dbCursor.execute("CREATE TEMPORARY TABLE readersTemp like readers")
@@ -106,7 +124,7 @@ modified = [];
 dbCursor.execute('SELECT r.Id from readers r left join readersTemp rt on rt.Id = r.Id where rt.Id IS NULL')
 for row in dbCursor:
     deleted.append(row[0])
-    # print("Deleted: %d" % row[0])
+    log("Deleted: %d" % row[0])
 
 # select all from readersTemp left join readers
 fieldListRt = ""
@@ -133,23 +151,23 @@ for row in dbCursor:
         for i in range(len(readerFields)):
             reader[readerFields[i]] = row[i]
         added.append(reader)
-        # print("Added: %d" % row[0])
+        log("Added: %d" % row[0])
     else:
         reader = {}
         reader['Id'] = row[0]
         for i in range(len(readerFields)):
             if row[i] != row[i + len(readerFields)]:
                 reader[readerFields[i]] = row[i]
+                log("Modified: %d field %s changed from \"%s\" to \"%s\"" % (row[0], readerFields[i], row[i + len(readerFields)], row[i]))
         modified.append(reader)
-        # print("Modified: %d" % row[0])
 
-if len(deleted) < 200 or force:
+if len(deleted) < 200 or args.force:
     if len(deleted) > 0 or len(added) > 0 or len(modified) > 0:
         dbCursor.execute("DELETE FROM readers")
         dbCursor.execute("INSERT INTO readers SELECT * FROM readersTemp")
         conn.commit()
         update={}
-        update['timestamp'] = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        update['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         update['deleted'] = deleted
         update['added'] = added
         update['modified'] = modified

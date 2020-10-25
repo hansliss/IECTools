@@ -2,6 +2,13 @@
 Bravida SystemHouse Solutions Integra Easy Connect (IEC) API toolkit
 
 ## Introduction
+This is a (hopefully ever-expanding) set of tools meant to be somewhat useful
+for an advanced Integra admin or an integration architec/developer, or at the
+very least provide examples of how to use IEC in an efficient manner.
+
+I'm not in any way affiliated with Bravida SystemHouse - this is completely
+unofficial in every sense.
+
 ### Dependencies
 This requires the "zeep" SOAP library. Install with
 ```bash
@@ -23,7 +30,7 @@ Enter, at a minimum, the WSDL path, the actual endpoint address and the session
 token in the config file, place that file in a suitable location, well protected.
 
 The examples below assume that you've downloaded the WSDL file and set all the
-relevant settings in the .ini file for the "Prod" environment, stored the .ini
+relevant settings in the .ini file for the "Prod" instance, stored the .ini
 file as /usr/local/etc/IEC.ini and protected it so that only relevant users can
 read it.
 
@@ -31,25 +38,25 @@ read it.
 
 ### Introduction
 This script will retrieve a single CardHolder by ID and print out selected details
-about that CardHolder. In the current version it will print out the FreeInfo1 field
-as NIN (here "PNR" for non-obvious reasons) and the name, composited from given name
-and surname.
+about that CardHolder. You will need to know the IEC fieldnames, and they are case
+sensitive.
 
 ### Usage
 
 ```bash
-python3 getPerson.sh <config file> <environment> <ID>
+python3 getPerson.sh -c <config file> -i <instance> -I <ID>
 ```
 
 ### Example
 #### Command
 ```bash
-$ python3 getPerson.sh /usr/local/etc/IEC.ini Prod 54123
+$ python3 getPerson.sh -c /usr/local/etc/IEC.ini -i Prod -I 54123 FreeInfo1 FirstName Surname
 ```
 #### Result
 ```
-PNR: 12345678
-Name: Allan Kaka
+FreeInfo1: 12345678
+FirstName: Allan
+Surname: Kaka
 ```
 
 ## checkCardReaders.py
@@ -85,14 +92,14 @@ Add the database configuration to the config file.
 ### Usage
 
 ```bash
-python3 checkCardReaders.sh <config file> <environment>
+python3 checkCardReaders.sh -c <config file> -i <instance>
 ```
 
 ### Example
 
 #### Command
 ```bash
-python3 getPerson.sh /usr/local/etc/IEC.init Prod
+python3 getPerson.sh -c /usr/local/etc/IEC.init -i Prod
 ```
 #### Result
 ```json
