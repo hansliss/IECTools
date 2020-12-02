@@ -3,11 +3,20 @@ Bravida SystemHouse Solutions Integra Easy Connect (IEC) API toolkit
 
 ## Introduction
 This is a (hopefully ever-expanding) set of tools meant to be somewhat useful
-for an advanced Integra admin or an integration architec/developer, or at the
+for an advanced Integra admin or an integration architect/developer, or at the
 very least provide examples of how to use IEC in an efficient manner.
 
 I'm not in any way affiliated with Bravida SystemHouse - this is completely
 unofficial in every sense.
+
+*The reason for using Python for these tools is that it is an ubiquitous language,
+especially among non-programmers. It's reasonably readable, and the code needed
+for these tools can be implemented with relatively little code in Python. It is,
+however, not my favourite language, and I'm not likely to learn any more about
+it than I actually need to learn in order to produce somewhat decent code. If
+you are in any way offended and hurt by the way I write Python code and think
+that I should do it differently, feel free to either implement the changes you
+feel are necessary and send me a pull request, or suffer in silence.*
 
 ### Dependencies
 This requires the "zeep" SOAP library. Install with
