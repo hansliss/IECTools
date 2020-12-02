@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""getPerson.py: Get a single person by Id and print some info about it."""
+"""getAccessZone.py: Get an Access Zone by Id and print some info about it."""
 
 __author__ = "Hans Liss"
 __copyright__ = "Copyright 2020, Hans Liss"
@@ -17,13 +17,13 @@ import configparser
 import argparse
 
 ## Read command-line parameters and configuration file
-parser = argparse.ArgumentParser(description='get a CardHolder by ID and print some fields')
+parser = argparse.ArgumentParser(description='get an Access Zone by ID and print some fields')
 parser.add_argument('-c', '--configfile', required=True,
                     help='path to configuration file')
 parser.add_argument('-i', '--instance', required=True,
                     help='name of the instance to use from the config file')
 parser.add_argument('-I', '--id', required=True,
-                    help='Id of the CardHolder you want to retrieve')
+                    help='Id of the Access Zone you want to retrieve')
 parser.add_argument('fields', metavar='field', nargs='+')
 
 args = parser.parse_args()
@@ -46,7 +46,7 @@ request_data={'request' : {'SessionToken' : uuid.UUID('{' + sessiontoken + '}'),
                            'Id' : args.id}}
 
 ## Call the method and get a response object
-response=client.service.GetCardholderById(**request_data)
+response=client.service.GetAccessZoneById(**request_data)
 
 ## Print out the result
 for field in args.fields:
