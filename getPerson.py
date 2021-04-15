@@ -50,5 +50,5 @@ response=client.service.GetCardholderById(**request_data)
 
 ## Print out the result
 for field in args.fields:
-    print(field + ": " + response[field])
+    print(field + ": " + str(response[field]))
 
